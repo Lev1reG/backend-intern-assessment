@@ -267,9 +267,24 @@ However, two requirements must be fulfilled:
   2. Explain what the `json:"-"` struct tag does during JSON serialization (`json.Marshal`).
 
 *Write your answer here:*
+
+**1. Rewritten `User` struct with struct tags:**
+```go
+type User struct {
+	ID           int    `json:"id"`
+	FullName     string `json:"full_name"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"-"`
+}
+```
+
+**2. What the `json:"-"` tag does during JSON serialization:**
 ```text
+The json:"-" struct tag explicitly instructs Go's encoding/json package to omit that field entirely during both serialization (json.Marshal) and deserialization (json.Unmarshal).
 
+During json.Marshal, the encoder skips the tagged field completely, ensuring sensitive values (like PasswordHash) are never written into the generated JSON output payload, regardless of whether the field holds data or is empty.
 
+Unlike omitempty (which omits a field only if it matches its type's zero-value), "-" unconditionally excludes the field under all circumstances.
 ```
 
 ---
@@ -286,8 +301,18 @@ Your team is building an **E-Commerce Platform**. You need to store two main mod
 
 *Write your answer here:*
 ```text
+1. Database Selection:
+   - User Wallets & Financial Balances: MySQL (Relational)
+   - Product Catalog & Dynamic Specifications: MongoDB (Document NoSQL)
 
+2. Justification:
+   - User Wallets & Financial Balances (MySQL):
+     - ACID Compliance & Data Integrity: Financial transactions demand strict Atomicity and Isolation. In MySQL (InnoDB engine), multi-row ACID transactions ensure that balance debits and credits occur atomically—if any step fails, the entire transaction rolls back, preventing balance drift or double-spending.
+     - Strict Schema & Constraints: A normalized relational schema enforces rigid data types, foreign keys, and CHECK constraints (e.g., preventing negative wallet balances at the database layer), eliminating data corruption risks.
 
+   - Product Catalog & Dynamic Specifications (MongoDB):
+     - Schema Flexibility: Products across different categories have completely heterogeneous attributes (e.g., Laptops need RAM/CPU, Apparel needs Size/Fabric).
+     - Document Model: MongoDB documents natively support dynamic, polymorphic BSON schemas and nested sub-documents/arrays. Each product document stores its unique specifications cleanly, simplifying queries and eliminating expensive multi-table JOINs for read-heavy catalog browsing.
 ```
 
 ---
